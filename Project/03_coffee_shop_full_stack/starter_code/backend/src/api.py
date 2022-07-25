@@ -42,6 +42,7 @@ def get_drinks():
 @app.route('/drinks-detail', methods=['GET'])
 @requires_auth('get:drinks-detail')
 def get_drink_detail(jwt):
+    # getting all the drinks in the database
     drinks = Drink.query.all()
 
     formatted_drinks = [drink.long() for drink in drinks]
@@ -55,15 +56,17 @@ def get_drink_detail(jwt):
 @app.route('/drinks', methods=['POST'])
 @requires_auth('post:drinks')
 def post_drink(jwt):
+    # get request data
     data = request.get_json()
     if 'title' and 'recipe' not in data:
         abort(422)
 
     title = data['title']
     recipe_json = json.dumps(data['recipe'])
-
+    # creattion of drinks through instanciation
     drink = Drink(title=title, recipe=recipe_json)
-
+    # using the method from the database to insert the newly created drink to
+    # the database
     drink.insert()
 
     return jsonify({
@@ -78,7 +81,7 @@ def update_drink(jwt, id):
     drink = Drink.query.get(id)
     if drink is None:
         abort(404)
-   
+
     data = request.get_json()
     if 'title' in data:
         drink.title = data['title']
@@ -97,7 +100,7 @@ def update_drink(jwt, id):
 @app.route('/drinks/<int:id>', methods=['DELETE'])
 @requires_auth('delete:drinks')
 def delete_drink(jwt, id):
-
+    # quering for drink with a particular id
     drink = Drink.query.get(id)
     if drink is None:
         abort(404)
